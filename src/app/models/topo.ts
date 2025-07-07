@@ -11,4 +11,5 @@ export interface Topo {
     valley: string;
     panoramique : string;
     start: string;
+    link: string;
 }

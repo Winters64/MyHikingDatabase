@@ -1,33 +1,32 @@
 <h3>{{ title }}</h3>
 
-<!-- <table>
-  @for (hike of hikes; track hike) {
-    <tr>
-        <td>{{ hike.id }}</td>
-        <td>{{ hike.name }}</td>
-        <td>{{ hike.valley }}</td>
-        <td>{{ hike.altitude }}</td>
-        <td>{{ hike.done }}</td>
-        <td>{{ hike.date }}</td>
-        <td><a href="{{ hike.albumLink }}" target="_blank">Album</a></td>
-        <td><a href="{{ hike.topoLink }}" target="_blank">Topo</a></td>
-        <td><a href="{{ hike.garminink }}" target="_blank">Garmin</a></td>
-        <td>{{ hike.observations }}</td>
-    </tr>
-  }
-</table> -->
-
-<mat-chip-listbox multiple (change)="onValleyChange($event)">
+<mat-chip-listbox multiple [(ngModel)]="selectedValleys" (change)="onValleyChange($event)">
   @for (valley of valleys; track $index) {
-    <mat-chip-option>{{valley}}</mat-chip-option>
+    <mat-chip-option [value]="valley">{{valley}}</mat-chip-option>
   }
 </mat-chip-listbox>
 
-<!-- <mat-slider min="0" max="4000" step="500" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
-  <input value="0" matSliderStartThumb #sliderStart>
-  <input value="4000" matSliderEndThumb #sliderEnd>
-</mat-slider>
-<label class="example-value-label"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</label> -->
+<mat-chip-listbox multiple [(ngModel)]="selectedLevels" (change)="onLevelChange($event)">
+  @for (level of levels; track $index) {
+    <mat-chip-option [value]="level">{{level}}</mat-chip-option>
+  }
+</mat-chip-listbox>
+
+<div>
+  <mat-slider min="0" max="{{ maxAltitude }}" step="500" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
+    <input value="0" matSliderStartThumb #sliderStart>
+    <input value="{{ maxAltitude }}" matSliderEndThumb #sliderEnd>
+  </mat-slider>
+  <label class="example-value-label"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</label>
+</div>
+
+<div>
+  <mat-slider min="0" max="{{ maxElevation }}" step="500" showTickMarks (change)="onElevationChange(sliderStart2.value, sliderEnd2.value)">
+    <input value="0" matSliderStartThumb #sliderStart2>
+    <input value="{{ maxElevation }}" matSliderEndThumb #sliderEnd2>
+  </mat-slider>
+  <label class="example-value-label"> Entre {{sliderStart2.value}} m et {{sliderEnd2.value}} m</label>
+</div>
 
 
 <table mat-table [dataSource]="dataSource" matSort  class="mat-elevation-z8">
@@ -79,6 +78,18 @@
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Départ </th>
     <td mat-cell *matCellDef="let element"> {{element.start}} </td>
   </ng-container>
+  <ng-container matColumnDef="link">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Lien </th>
+    <td mat-cell *matCellDef="let element">
+      @if (element.link) {
+        <a href="{{ element.link }}" target="_blank">
+          <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="link"></mat-icon>
+        </a>
+      }
+    </td>
+  </ng-container>
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
+
+<mat-paginator [pageSizeOptions]="[20, 50, 100]" aria-label="Select page of periodic elements"></mat-paginator>

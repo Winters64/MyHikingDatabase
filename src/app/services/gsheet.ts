@@ -8,7 +8,7 @@ export class SheetService {
   private apiKey = 'AIzaSyA-CWFxmHUOL0nTwmUyTShDyVH6jrsQLPA';
   private sheetId = '1GcSPjk_WgQ_0qaVH-aejVUmsfhu9z5Px65Y0bGEgZpQ';
   private hikesRange = 'Sommets!A1:I86'; //Mes randonnées
-  private toposRange = 'Topos!A:K'; //Topos
+  private toposRange = 'Topos!A:L'; //Topos
 
   constructor(private http: HttpClient) {}
 

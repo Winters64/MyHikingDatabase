@@ -1,0 +1,84 @@
+<h3>{{ title }}</h3>
+
+<!-- <table>
+  @for (hike of hikes; track hike) {
+    <tr>
+        <td>{{ hike.id }}</td>
+        <td>{{ hike.name }}</td>
+        <td>{{ hike.valley }}</td>
+        <td>{{ hike.altitude }}</td>
+        <td>{{ hike.done }}</td>
+        <td>{{ hike.date }}</td>
+        <td><a href="{{ hike.albumLink }}" target="_blank">Album</a></td>
+        <td><a href="{{ hike.topoLink }}" target="_blank">Topo</a></td>
+        <td><a href="{{ hike.garminink }}" target="_blank">Garmin</a></td>
+        <td>{{ hike.observations }}</td>
+    </tr>
+  }
+</table> -->
+
+<mat-chip-listbox multiple (change)="onValleyChange($event)">
+  @for (valley of valleys; track $index) {
+    <mat-chip-option>{{valley}}</mat-chip-option>
+  }
+</mat-chip-listbox>
+
+<!-- <mat-slider min="0" max="4000" step="500" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
+  <input value="0" matSliderStartThumb #sliderStart>
+  <input value="4000" matSliderEndThumb #sliderEnd>
+</mat-slider>
+<label class="example-value-label"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</label> -->
+
+
+<table mat-table [dataSource]="dataSource" matSort  class="mat-elevation-z8">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+    <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+  </ng-container>
+  <ng-container matColumnDef="altitude">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Altitude </th>
+    <td mat-cell *matCellDef="let element"> {{element.altitude}} </td>
+  </ng-container>
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+  </ng-container>
+  <ng-container matColumnDef="level">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Niveau </th>
+    <td mat-cell *matCellDef="let element"> {{element.level}} </td>
+  </ng-container>
+  <ng-container matColumnDef="duration">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Durée </th>
+    <td mat-cell *matCellDef="let element"> {{element.duration}} </td>
+  </ng-container>
+  <ng-container matColumnDef="elevation">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Dénivelé </th>
+    <td mat-cell *matCellDef="let element"> {{element.elevation}} </td>
+  </ng-container>
+  <ng-container matColumnDef="kilometers">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Kilomètres </th>
+    <td mat-cell *matCellDef="let element"> {{element.kilometers}} </td>
+  </ng-container>
+  <ng-container matColumnDef="type">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+    <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+  </ng-container>
+  <ng-container matColumnDef="region">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Région </th>
+    <td mat-cell *matCellDef="let element"> {{element.region}} </td>
+  </ng-container>
+  <ng-container matColumnDef="valley">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Vallée </th>
+    <td mat-cell *matCellDef="let element"> {{element.valley}} </td>
+  </ng-container>
+  <ng-container matColumnDef="panoramique">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Panoramique </th>
+    <td mat-cell *matCellDef="let element"> {{element.panoramique}} </td>
+  </ng-container>
+  <ng-container matColumnDef="start">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Départ </th>
+    <td mat-cell *matCellDef="let element"> {{element.start}} </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

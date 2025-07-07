@@ -1,0 +1,99 @@
+<h3>{{ title }}</h3>
+
+<!-- <table>
+  @for (hike of hikes; track hike) {
+    <tr>
+        <td>{{ hike.id }}</td>
+        <td>{{ hike.name }}</td>
+        <td>{{ hike.valley }}</td>
+        <td>{{ hike.altitude }}</td>
+        <td>{{ hike.done }}</td>
+        <td>{{ hike.date }}</td>
+        <td><a href="{{ hike.albumLink }}" target="_blank">Album</a></td>
+        <td><a href="{{ hike.topoLink }}" target="_blank">Topo</a></td>
+        <td><a href="{{ hike.garminink }}" target="_blank">Garmin</a></td>
+        <td>{{ hike.observations }}</td>
+    </tr>
+  }
+</table> -->
+
+<mat-chip-listbox multiple (change)="onValleyChange($event)">
+  @for (valley of valleys; track $index) {
+    <mat-chip-option>{{valley}}</mat-chip-option>
+  }
+</mat-chip-listbox>
+
+<mat-slider min="0" max="4000" step="500" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
+  <input value="0" matSliderStartThumb #sliderStart>
+  <input value="4000" matSliderEndThumb #sliderEnd>
+</mat-slider>
+<label class="example-value-label"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</label>
+
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef> Id </th>
+    <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+  </ng-container>
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef> Nom </th>
+    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+  </ng-container>
+  <ng-container matColumnDef="valley">
+    <th mat-header-cell *matHeaderCellDef> Vallée </th>
+    <td mat-cell *matCellDef="let element"> {{element.valley}} </td>
+  </ng-container>
+  <ng-container matColumnDef="altitude">
+    <th mat-header-cell *matHeaderCellDef> Altitude </th>
+    <td mat-cell *matCellDef="let element"> {{element.altitude}} </td>
+  </ng-container>
+  <ng-container matColumnDef="done">
+    <th mat-header-cell *matHeaderCellDef> Fait ? </th>
+    <td mat-cell *matCellDef="let element">
+      @if (element.done == 1) {
+        <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="check_box_outline"></mat-icon>
+      }@else {
+        <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="check_box_outline_blank"></mat-icon>
+      }
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="date">
+    <th mat-header-cell *matHeaderCellDef> Date </th>
+    <td mat-cell *matCellDef="let element"> {{element.date}} </td>
+  </ng-container>
+  <ng-container matColumnDef="albumLink">
+    <th mat-header-cell *matHeaderCellDef> Album </th>
+    <td mat-cell *matCellDef="let element">
+       @if (element.albumLink) {
+        <a href="{{ element.albumLink }}" target="_blank">
+          <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="link"></mat-icon>
+        </a>
+       }
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="topoLink">
+    <th mat-header-cell *matHeaderCellDef> Topo </th>
+    <td mat-cell *matCellDef="let element">
+      @if (element.albumLink) {
+        <a href="{{ element.topoLink }}" target="_blank">
+          <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="link"></mat-icon>
+        </a>
+      }
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="garminink">
+    <th mat-header-cell *matHeaderCellDef> Garmin </th>
+    <td mat-cell *matCellDef="let element">
+      @if (element.garminink) {
+        <a href="{{ element.garminink }}" target="_blank">
+          <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="link"></mat-icon>
+        </a>
+      }
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="observations">
+    <th mat-header-cell *matHeaderCellDef> Observations </th>
+    <td mat-cell *matCellDef="let element"> {{element.observations}} </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

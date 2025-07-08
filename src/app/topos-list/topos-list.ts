@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild} from '@angular/core';
 import { SheetService } from '../services/gsheet';
 import { Topo } from '../models/topo';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -9,10 +9,11 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSliderModule } from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-topos-list',
-  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule],
+  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule, MatExpansionModule],
   templateUrl: './topos-list.html',
   styleUrl: './topos-list.scss'
 })
@@ -25,11 +26,13 @@ export class ToposList {
   displayedColumns: string[] = ['altitude', 'name', 'level', 'duration', 'elevation', 'kilometers', 'type', 'region', 'valley', 'panoramique', 'start', 'link'];
   
   //Champs pour la recherche
+  protected regions: string[] = []
   protected valleys: string[] = []
   protected levels: string[] = []
   protected maxAltitude: number = 0;
   protected maxElevation: number = 0;
   protected maxkilometer: number = 0;
+  selectedRegions: string[] = [];
   selectedValleys: string[] = [];
   selectedLevels: string[] = [];
   selectedStartAltitude: number = 0;
@@ -47,6 +50,7 @@ export class ToposList {
       this.initialToposList = [];
       for (let index = 1; index < res.values.length; index++) {
         if (res.values[index] && res.values[index].length >= 1) {
+          this.regions.push(res.values[index][7])
           this.valleys.push(res.values[index][8])
           this.levels.push(res.values[index][2])
           this.initialToposList.push({
@@ -68,6 +72,9 @@ export class ToposList {
           console.warn(`Skipping row ${index}: Data is incomplete or missing.`);
         }
       }
+      //Initial regions list
+      this.regions = Array.from(new Set(this.regions));
+      this.regions.sort((a, b) => a.localeCompare(b));
       //Initial valleys list
       this.valleys = Array.from(new Set(this.valleys));
       this.valleys.sort((a, b) => a.localeCompare(b));
@@ -120,6 +127,11 @@ export class ToposList {
   }
 
   // --- Gestion des changements de filtre ---
+  onRegionChange(event: MatChipListboxChange): void {
+    this.selectedRegions = event.value;
+    console.log('Régions sélectionnées:', this.selectedRegions);
+    this.applyAllFilters();
+  }
   onValleyChange(event: MatChipListboxChange): void {
     this.selectedValleys = event.value;
     console.log('Vallées sélectionnées:', this.selectedValleys);
@@ -153,6 +165,12 @@ export class ToposList {
   applyAllFilters(): void {
     //On remet tous les enregistrements initiaux
     let tempFilteredData = [...this.initialToposList];
+    // Appliquer le filtre par Region
+    if (this.selectedRegions.length > 0) {
+      tempFilteredData = tempFilteredData.filter(topo =>
+        this.selectedRegions.includes(topo.region)
+      );
+    }
     // Appliquer le filtre par Vallée
     if (this.selectedValleys.length > 0) {
       tempFilteredData = tempFilteredData.filter(topo =>

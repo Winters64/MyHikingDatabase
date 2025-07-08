@@ -1,54 +1,74 @@
 <h3>{{ title }}</h3>
 
-<table class="filters">
-  <!-- Vallée -->
-  <tr>
-    <td><mat-label>Vallée </mat-label></td>
-    <td><mat-chip-listbox multiple [(ngModel)]="selectedValleys" (change)="onValleyChange($event)">
-      @for (valley of valleys; track $index) {
-        <mat-chip-option [value]="valley">{{valley}}</mat-chip-option>
-      }
-    </mat-chip-listbox></td>
-  </tr>
-  <!-- Niveau -->
-  <tr>
-    <td><mat-label >Niveau </mat-label></td>
-    <td><mat-chip-listbox multiple [(ngModel)]="selectedLevels" (change)="onLevelChange($event)">
-      @for (level of levels; track $index) {
-        <mat-chip-option [value]="level">{{level}}</mat-chip-option>
-      }
-    </mat-chip-listbox></td>
-  </tr>
-  <!-- Altitude -->
-  <tr>
-    <td><mat-label>Altitude </mat-label></td>
-    <td><mat-slider min="0" max="{{ maxAltitude }}" step="100" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
-      <input value="0" matSliderStartThumb #sliderStart [(ngModel)]="selectedStartAltitude">
-      <input value="{{ maxAltitude }}" matSliderEndThumb #sliderEnd [(ngModel)]="selectedEndAltitude">
-    </mat-slider>
-    <mat-label class="labelSlider"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</mat-label></td>
-  </tr>
-  <!-- Dévivelé -->
-  <tr>
-    <td><mat-label>Dénivelé </mat-label></td>
-    <td><mat-slider min="0" max="{{ maxElevation }}" step="100" showTickMarks (change)="onElevationChange(sliderStart2.value, sliderEnd2.value)">
-      <input value="0" matSliderStartThumb #sliderStart2 [(ngModel)]="selectedStartElevation">
-      <input value="{{ maxElevation }}" matSliderEndThumb #sliderEnd2 [(ngModel)]="selectedEndElevation">
-    </mat-slider>
-    <mat-label class="labelSlider"> Entre {{sliderStart2.value}} m et {{sliderEnd2.value}} m</mat-label></td>
-  </tr>
-  <!-- Distance -->
-  <tr>
-    <td><mat-label>Kilomètres </mat-label></td>
-    <td><mat-slider min="0" max="{{ maxkilometer }}" step="5" showTickMarks (change)="onkilometerChange(sliderStart3.value, sliderEnd3.value)">
-      <input value="0" matSliderStartThumb #sliderStart3 [(ngModel)]="selectedStartkilometer">
-      <input value="{{ maxkilometer }}" matSliderEndThumb #sliderEnd3 [(ngModel)]="selectedEndkilometer">
-    </mat-slider>
-    <mat-label class="labelSlider"> Entre {{sliderStart3.value}} km et {{sliderEnd3.value}} km</mat-label></td>
-  </tr>
-</table>
+<!-- FILTRES DE RECHERCHE -->
+<mat-accordion>
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Filtres de recherche </mat-panel-title>
+      <mat-panel-description></mat-panel-description>
+    </mat-expansion-panel-header>
+      <table class="filters">
+        <!-- Region -->
+        <tr>
+          <td><mat-label>Région </mat-label></td>
+          <td><mat-chip-listbox multiple [(ngModel)]="selectedRegions" (change)="onRegionChange($event)">
+            @for (region of regions; track $index) {
+              <mat-chip-option [value]="region">{{region}}</mat-chip-option>
+            }
+          </mat-chip-listbox></td>
+        </tr>
+        <!-- Vallée -->
+        <tr>
+          <td><mat-label>Vallée </mat-label></td>
+          <td><mat-chip-listbox multiple [(ngModel)]="selectedValleys" (change)="onValleyChange($event)">
+            @for (valley of valleys; track $index) {
+              <mat-chip-option [value]="valley">{{valley}}</mat-chip-option>
+            }
+          </mat-chip-listbox></td>
+        </tr>
+        <!-- Niveau -->
+        <tr>
+          <td><mat-label >Niveau </mat-label></td>
+          <td><mat-chip-listbox multiple [(ngModel)]="selectedLevels" (change)="onLevelChange($event)">
+            @for (level of levels; track $index) {
+              <mat-chip-option [value]="level">{{level}}</mat-chip-option>
+            }
+          </mat-chip-listbox></td>
+        </tr>
+        <!-- Altitude -->
+        <tr>
+          <td><mat-label>Altitude </mat-label></td>
+          <td><mat-slider min="0" max="{{ maxAltitude }}" step="100" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
+            <input value="0" matSliderStartThumb #sliderStart [(ngModel)]="selectedStartAltitude">
+            <input value="{{ maxAltitude }}" matSliderEndThumb #sliderEnd [(ngModel)]="selectedEndAltitude">
+          </mat-slider>
+          <mat-label class="labelSlider"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</mat-label></td>
+        </tr>
+        <!-- Dévivelé -->
+        <tr>
+          <td><mat-label>Dénivelé </mat-label></td>
+          <td><mat-slider min="0" max="{{ maxElevation }}" step="100" showTickMarks (change)="onElevationChange(sliderStart2.value, sliderEnd2.value)">
+            <input value="0" matSliderStartThumb #sliderStart2 [(ngModel)]="selectedStartElevation">
+            <input value="{{ maxElevation }}" matSliderEndThumb #sliderEnd2 [(ngModel)]="selectedEndElevation">
+          </mat-slider>
+          <mat-label class="labelSlider"> Entre {{sliderStart2.value}} m et {{sliderEnd2.value}} m</mat-label></td>
+        </tr>
+        <!-- Distance -->
+        <tr>
+          <td><mat-label>Kilomètres </mat-label></td>
+          <td><mat-slider min="0" max="{{ maxkilometer }}" step="5" showTickMarks (change)="onkilometerChange(sliderStart3.value, sliderEnd3.value)">
+            <input value="0" matSliderStartThumb #sliderStart3 [(ngModel)]="selectedStartkilometer">
+            <input value="{{ maxkilometer }}" matSliderEndThumb #sliderEnd3 [(ngModel)]="selectedEndkilometer">
+          </mat-slider>
+          <mat-label class="labelSlider"> Entre {{sliderStart3.value}} km et {{sliderEnd3.value}} km</mat-label></td>
+        </tr>
+      </table>
+  </mat-expansion-panel>
+</mat-accordion>
 
-<!-- Résultat -->
+<br />
+
+<!-- RESULTAT DE LA RECHERCHE -->
 <table mat-table [dataSource]="dataSource" matSort  class="mat-elevation-z8">
   <ng-container matColumnDef="id">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>

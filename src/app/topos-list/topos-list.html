@@ -1,34 +1,54 @@
 <h3>{{ title }}</h3>
 
-<mat-chip-listbox multiple [(ngModel)]="selectedValleys" (change)="onValleyChange($event)">
-  @for (valley of valleys; track $index) {
-    <mat-chip-option [value]="valley">{{valley}}</mat-chip-option>
-  }
-</mat-chip-listbox>
+<table class="filters">
+  <!-- Vallée -->
+  <tr>
+    <td><mat-label>Vallée </mat-label></td>
+    <td><mat-chip-listbox multiple [(ngModel)]="selectedValleys" (change)="onValleyChange($event)">
+      @for (valley of valleys; track $index) {
+        <mat-chip-option [value]="valley">{{valley}}</mat-chip-option>
+      }
+    </mat-chip-listbox></td>
+  </tr>
+  <!-- Niveau -->
+  <tr>
+    <td><mat-label >Niveau </mat-label></td>
+    <td><mat-chip-listbox multiple [(ngModel)]="selectedLevels" (change)="onLevelChange($event)">
+      @for (level of levels; track $index) {
+        <mat-chip-option [value]="level">{{level}}</mat-chip-option>
+      }
+    </mat-chip-listbox></td>
+  </tr>
+  <!-- Altitude -->
+  <tr>
+    <td><mat-label>Altitude </mat-label></td>
+    <td><mat-slider min="0" max="{{ maxAltitude }}" step="100" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
+      <input value="0" matSliderStartThumb #sliderStart [(ngModel)]="selectedStartAltitude">
+      <input value="{{ maxAltitude }}" matSliderEndThumb #sliderEnd [(ngModel)]="selectedEndAltitude">
+    </mat-slider>
+    <mat-label class="labelSlider"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</mat-label></td>
+  </tr>
+  <!-- Dévivelé -->
+  <tr>
+    <td><mat-label>Dénivelé </mat-label></td>
+    <td><mat-slider min="0" max="{{ maxElevation }}" step="100" showTickMarks (change)="onElevationChange(sliderStart2.value, sliderEnd2.value)">
+      <input value="0" matSliderStartThumb #sliderStart2 [(ngModel)]="selectedStartElevation">
+      <input value="{{ maxElevation }}" matSliderEndThumb #sliderEnd2 [(ngModel)]="selectedEndElevation">
+    </mat-slider>
+    <mat-label class="labelSlider"> Entre {{sliderStart2.value}} m et {{sliderEnd2.value}} m</mat-label></td>
+  </tr>
+  <!-- Distance -->
+  <tr>
+    <td><mat-label>Kilomètres </mat-label></td>
+    <td><mat-slider min="0" max="{{ maxkilometer }}" step="5" showTickMarks (change)="onkilometerChange(sliderStart3.value, sliderEnd3.value)">
+      <input value="0" matSliderStartThumb #sliderStart3 [(ngModel)]="selectedStartkilometer">
+      <input value="{{ maxkilometer }}" matSliderEndThumb #sliderEnd3 [(ngModel)]="selectedEndkilometer">
+    </mat-slider>
+    <mat-label class="labelSlider"> Entre {{sliderStart3.value}} km et {{sliderEnd3.value}} km</mat-label></td>
+  </tr>
+</table>
 
-<mat-chip-listbox multiple [(ngModel)]="selectedLevels" (change)="onLevelChange($event)">
-  @for (level of levels; track $index) {
-    <mat-chip-option [value]="level">{{level}}</mat-chip-option>
-  }
-</mat-chip-listbox>
-
-<div>
-  <mat-slider min="0" max="{{ maxAltitude }}" step="500" showTickMarks (change)="onAltitudeChange(sliderStart.value, sliderEnd.value)">
-    <input value="0" matSliderStartThumb #sliderStart>
-    <input value="{{ maxAltitude }}" matSliderEndThumb #sliderEnd>
-  </mat-slider>
-  <label class="example-value-label"> Entre {{sliderStart.value}} m et {{sliderEnd.value}} m</label>
-</div>
-
-<div>
-  <mat-slider min="0" max="{{ maxElevation }}" step="500" showTickMarks (change)="onElevationChange(sliderStart2.value, sliderEnd2.value)">
-    <input value="0" matSliderStartThumb #sliderStart2>
-    <input value="{{ maxElevation }}" matSliderEndThumb #sliderEnd2>
-  </mat-slider>
-  <label class="example-value-label"> Entre {{sliderStart2.value}} m et {{sliderEnd2.value}} m</label>
-</div>
-
-
+<!-- Résultat -->
 <table mat-table [dataSource]="dataSource" matSort  class="mat-elevation-z8">
   <ng-container matColumnDef="id">
     <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
@@ -91,5 +111,4 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
-
 <mat-paginator [pageSizeOptions]="[20, 50, 100]" aria-label="Select page of periodic elements"></mat-paginator>

@@ -29,8 +29,15 @@ export class ToposList {
   protected levels: string[] = []
   protected maxAltitude: number = 0;
   protected maxElevation: number = 0;
+  protected maxkilometer: number = 0;
   selectedValleys: string[] = [];
   selectedLevels: string[] = [];
+  selectedStartAltitude: number = 0;
+  selectedEndAltitude: number = 0;
+  selectedStartElevation: number = 0;
+  selectedEndElevation: number = 0;
+  selectedStartkilometer: number = 0;
+  selectedEndkilometer: number = 0;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -61,33 +68,39 @@ export class ToposList {
           console.warn(`Skipping row ${index}: Data is incomplete or missing.`);
         }
       }
-
       //Initial valleys list
       this.valleys = Array.from(new Set(this.valleys));
       this.valleys.sort((a, b) => a.localeCompare(b));
-
       //Initial levels list
       this.levels = Array.from(new Set(this.levels));
       this.levels.sort((a, b) => a.localeCompare(b));
-
-      //Initial max altitude list
+      //Initial max altitude
       const maxAltitudeTopo = this.initialToposList.reduce((prev, current) => {
         return (Number(prev.altitude) > Number(current.altitude)) ? prev : current;
       });
       this.maxAltitude = Number(maxAltitudeTopo.altitude);
-      if (Math.abs(this.maxAltitude) % 500 !== 0){
-        this.maxAltitude += 500;
+      if (Math.abs(this.maxAltitude) % 100 !== 0){
+        this.maxAltitude += 100;
       }
-
-      //Initial max elevation list
+      this.selectedEndAltitude = this.maxAltitude;
+      //Initial max elevation
       const maxElevationTopo = this.initialToposList.reduce((prev, current) => {
         return (Number(prev.elevation) > Number(current.elevation)) ? prev : current;
       });
       this.maxElevation = Number(maxElevationTopo.elevation);
-      if (Math.abs(this.maxElevation) % 500 !== 0){
-        this.maxElevation += 500;
+      if (Math.abs(this.maxElevation) % 100 !== 0){
+        this.maxElevation += 100;
       }
-
+      this.selectedEndElevation = this.maxElevation;
+      //Initial max kilometers
+      const maxKilometerTopo = this.initialToposList.reduce((prev, current) => {
+        return (Number(prev.kilometers) > Number(current.kilometers)) ? prev : current;
+      });
+      this.maxkilometer = Number(maxKilometerTopo.kilometers);
+      if (Math.abs(this.maxkilometer) % 5 !== 0){
+        this.maxkilometer += 5;
+      }
+      this.selectedEndkilometer = this.maxkilometer;
       //Initial topo lis data source
       this.dataSource.data = this.initialToposList;
     });
@@ -112,10 +125,27 @@ export class ToposList {
     console.log('Vallées sélectionnées:', this.selectedValleys);
     this.applyAllFilters();
   }
-
   onLevelChange(event: MatChipListboxChange): void {
     this.selectedLevels = event.value;
     console.log('Niveaux sélectionnés:', this.selectedValleys);
+    this.applyAllFilters();
+  }
+  onAltitudeChange(startValue: string, endValue: string){
+    this.selectedStartAltitude = Number(startValue);
+    this.selectedEndAltitude = Number(endValue);
+    console.log('Altitude sélectionnés:', this.selectedStartAltitude + " - "+this.selectedEndAltitude);
+    this.applyAllFilters();
+  }
+  onElevationChange(startValue: string, endValue: string){
+    this.selectedStartElevation = Number(startValue);
+    this.selectedEndElevation = Number(endValue);
+    console.log('Dénivelé sélectionnés:', this.selectedStartElevation + " - "+this.selectedEndElevation);
+    this.applyAllFilters();
+  }
+  onkilometerChange(startValue: string, endValue: string){
+    this.selectedStartkilometer = Number(startValue);
+    this.selectedEndkilometer = Number(endValue);
+    console.log('Kilomètre sélectionnés:', this.selectedStartkilometer + " - "+this.selectedEndkilometer);
     this.applyAllFilters();
   }
 
@@ -123,18 +153,36 @@ export class ToposList {
   applyAllFilters(): void {
     //On remet tous les enregistrements initiaux
     let tempFilteredData = [...this.initialToposList];
-    // Appliquer le filtre par Vallée si des vallées sont sélectionnées
+    // Appliquer le filtre par Vallée
     if (this.selectedValleys.length > 0) {
-      tempFilteredData = tempFilteredData.filter(product =>
-        this.selectedValleys.includes(product.valley)
+      tempFilteredData = tempFilteredData.filter(topo =>
+        this.selectedValleys.includes(topo.valley)
       );
     }
-    // Appliquer le filtre par Niveau si des niveaux sont sélectionnées
+    //Appliquer le filtre par Niveau
     if (this.selectedLevels.length > 0) {
-      tempFilteredData = tempFilteredData.filter(product =>
-        this.selectedLevels.includes(product.level)
+      tempFilteredData = tempFilteredData.filter(topo =>
+        this.selectedLevels.includes(topo.level)
       );
     }
+    //Appliquer le filtre sur l'Altitude
+    tempFilteredData = tempFilteredData.filter(topo => {
+      const startOK = topo.altitude >= this.selectedStartAltitude;
+      const endOK = topo.altitude <= this.selectedEndAltitude;
+      return startOK && endOK;
+    });
+    //Appliquer le filtre sur le Dénivélé
+    tempFilteredData = tempFilteredData.filter(topo => {
+      const startOK = topo.elevation >= this.selectedStartElevation;
+      const endOK = topo.elevation <= this.selectedEndElevation;
+      return startOK && endOK;
+    });
+    //Appliquer le filtre sur les Kilometres
+    tempFilteredData = tempFilteredData.filter(topo => {
+      const startOK = topo.kilometers >= this.selectedStartkilometer;
+      const endOK = topo.kilometers <= this.selectedEndkilometer;
+      return startOK && endOK;
+    });
     // Mettre à jour le tableau affiché
     this.dataSource.data = tempFilteredData;
     console.log('Données filtrées:', this.dataSource.data.length, 'éléments');
@@ -142,25 +190,6 @@ export class ToposList {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
-  }
-
-
-  onAltitudeChange(startValue: string, endValue: string){
-    const filteredTopos: Topo[] = this.initialToposList.filter(topo => {
-      const startOK = topo.altitude >= Number(startValue);
-      const endOK = topo.altitude <= Number(endValue);
-      return startOK && endOK;
-    });
-    this.dataSource.data = filteredTopos;
-  }
-
-  onElevationChange(startValue: string, endValue: string){
-    const filteredTopos: Topo[] = this.initialToposList.filter(topo => {
-      const startOK = topo.elevation >= Number(startValue);
-      const endOK = topo.elevation <= Number(endValue);
-      return startOK && endOK;
-    });
-    this.dataSource.data = filteredTopos;
   }
 
 }

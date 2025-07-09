@@ -12,4 +12,5 @@ export interface Topo {
     panoramique : string;
     start: string;
     link: string;
+    done: Boolean;
 }

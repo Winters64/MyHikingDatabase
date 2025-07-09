@@ -12,10 +12,12 @@ import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { UtilsService } from '../services/utils'
+import { CommonModule } from '@angular/common';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-topos-list',
-  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule, MatExpansionModule, MatInputModule],
+  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule, MatExpansionModule, MatInputModule, CommonModule, MatButtonToggleModule],
   templateUrl: './topos-list.html',
   styleUrl: './topos-list.scss'
 })
@@ -45,6 +47,7 @@ export class ToposList {
   selectedEndElevation: number = 0;
   selectedStartkilometer: number = 0;
   selectedEndkilometer: number = 0;
+  selectedDone: string = 'all';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -71,6 +74,7 @@ export class ToposList {
             panoramique: res.values[index][9],
             start: res.values[index][10],
             link: res.values[index][11],
+            done: res.values[index][12],
           });
         } else {
           console.warn(`Skipping row ${index}: Data is incomplete or missing.`);
@@ -170,6 +174,11 @@ export class ToposList {
     console.log('Kilomètre sélectionnés:', this.selectedStartkilometer + " - "+this.selectedEndkilometer);
     this.applyAllFilters();
   }
+  onDoneChange(value: string): void {
+    this.selectedDone = value;
+    console.log('Fait ?:', this.selectedDone);
+    this.applyAllFilters();
+  }
 
   // --- Logique d'application des filtres croisés ---
   applyAllFilters(): void {
@@ -218,6 +227,16 @@ export class ToposList {
       const endOK = topo.kilometers <= this.selectedEndkilometer;
       return startOK && endOK;
     });
+    //Appliquer le filtre sur les Fait
+    if(this.selectedDone !== 'all'){
+      tempFilteredData = tempFilteredData.filter(topo => {
+        if(this.selectedDone == 'y'){
+          return topo.done == true;
+        }else{
+          return topo.done == false
+        }
+      });
+    }
     // Mettre à jour le tableau affiché
     this.dataSource.data = tempFilteredData;
     console.log('Données filtrées:', this.dataSource.data.length, 'éléments');

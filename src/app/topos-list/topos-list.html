@@ -29,11 +29,17 @@
         <!-- Vallée -->
         <tr>
           <td><mat-label>Vallée </mat-label></td>
-          <td><mat-chip-listbox multiple [(ngModel)]="selectedValleys" (change)="onValleyChange($event)">
-            @for (valley of valleys; track $index) {
-              <mat-chip-option [value]="valley">{{valley}}</mat-chip-option>
+          <td>
+            @if(valleys.length > 0){
+              <mat-chip-listbox multiple [(ngModel)]="selectedValleys" (change)="onValleyChange($event)">
+                @for (valley of valleys; track $index) {
+                  <mat-chip-option [value]="valley">{{valley}}</mat-chip-option>
+                }
+              </mat-chip-listbox>
+            }@else{
+              <mat-label class="infosValley">Sélectionnez une région pour afficher la liste ici</mat-label>
             }
-          </mat-chip-listbox></td>
+          </td>
         </tr>
         <!-- Niveau -->
         <tr>
@@ -75,7 +81,6 @@
         <tr>
           <td><mat-label>Fait ? </mat-label></td>
           <td>
-            <!-- <mat-slide-toggle [(ngModel)]="selectedDone" (change)="onDoneChange()"></mat-slide-toggle> -->
              <mat-button-toggle-group [(ngModel)]="selectedDone" (change)="onDoneChange($event.value)">
               <mat-button-toggle value="y">Oui</mat-button-toggle>
               <mat-button-toggle value="n">Non</mat-button-toggle>

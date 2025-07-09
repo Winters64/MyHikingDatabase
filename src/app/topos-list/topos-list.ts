@@ -32,6 +32,7 @@ export class ToposList {
   
   //Champs pour la recherche
   protected regions: string[] = []
+  protected valleysRegions: any[] = []
   protected valleys: string[] = []
   protected levels: string[] = []
   protected maxAltitude: number = 0;
@@ -58,7 +59,7 @@ export class ToposList {
       for (let index = 1; index < res.values.length; index++) {
         if (res.values[index] && res.values[index].length >= 1) {
           this.regions.push(res.values[index][7])
-          this.valleys.push(res.values[index][8])
+          this.valleysRegions.push({valley: res.values[index][8], region: res.values[index][7]}) //Charger à la selection d'une ou plusieurs region
           this.levels.push(res.values[index][2])
           this.initialToposList.push({
             id: index + 1,
@@ -85,9 +86,10 @@ export class ToposList {
       //Initial regions list
       this.regions = Array.from(new Set(this.regions));
       this.regions.sort((a, b) => a.localeCompare(b));
-      //Initial valleys list
-      this.valleys = Array.from(new Set(this.valleys));
-      this.valleys.sort((a, b) => a.localeCompare(b));
+      //Initial valleys regions list
+      const stringifiedRows = this.valleysRegions.map(row => JSON.stringify(row));
+      const uniqueStringifiedRows = new Set(stringifiedRows);
+      this.valleysRegions = Array.from(uniqueStringifiedRows).map(str => JSON.parse(str));
       //Initial levels list
       this.levels = Array.from(new Set(this.levels));
       this.levels.sort((a, b) => a.localeCompare(b));
@@ -144,6 +146,17 @@ export class ToposList {
   onRegionChange(event: MatChipListboxChange): void {
     this.selectedRegions = event.value;
     console.log('Régions sélectionnées:', this.selectedRegions);
+    //Initial valleys list
+    this.valleys = [];
+    if (this.selectedRegions.length > 0) {
+      for (let index = 0; index < this.valleysRegions.length; index++) {
+          if(this.selectedRegions.includes(this.valleysRegions[index].region))
+            this.valleys.push(this.valleysRegions[index].valley)
+      }
+    }
+    this.valleys = Array.from(new Set(this.valleys));
+    this.valleys.sort((a, b) => a.localeCompare(b));
+    //end initial valleys list
     this.applyAllFilters();
   }
   onValleyChange(event: MatChipListboxChange): void {

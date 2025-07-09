@@ -2,16 +2,9 @@
   width: 300px;
 }
 
-.filters .labelSlider{
+.filters .labelSlider, .infosValley{
   font-size: 0.8em;
   font-style: italic;
-}
-
-.mat-row {
-  transition: background-color 0.3s ease;
-  &hover{
-    background-color: #abc7ff;
-  }
 }
 
 .row-done{

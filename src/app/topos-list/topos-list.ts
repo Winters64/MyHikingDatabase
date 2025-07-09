@@ -10,10 +10,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSliderModule } from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatInputModule } from '@angular/material/input';
+import { UtilsService } from '../services/utils'
 
 @Component({
   selector: 'app-topos-list',
-  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule, MatExpansionModule],
+  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule, MatExpansionModule, MatInputModule],
   templateUrl: './topos-list.html',
   styleUrl: './topos-list.scss'
 })
@@ -21,6 +23,7 @@ export class ToposList {
 
   protected title = 'Liste des topos';
   private sheetService: SheetService = inject(SheetService);
+  private utilsService: UtilsService = inject(UtilsService);
   private initialToposList: Topo[] = [];
   dataSource = new MatTableDataSource<Topo>();
   displayedColumns: string[] = ['altitude', 'name', 'level', 'duration', 'elevation', 'kilometers', 'type', 'region', 'valley', 'panoramique', 'start', 'link'];
@@ -32,6 +35,7 @@ export class ToposList {
   protected maxAltitude: number = 0;
   protected maxElevation: number = 0;
   protected maxkilometer: number = 0;
+  selectedName: string = '';
   selectedRegions: string[] = [];
   selectedValleys: string[] = [];
   selectedLevels: string[] = [];
@@ -72,6 +76,8 @@ export class ToposList {
           console.warn(`Skipping row ${index}: Data is incomplete or missing.`);
         }
       }
+      //Initial name
+      this.selectedName = '';
       //Initial regions list
       this.regions = Array.from(new Set(this.regions));
       this.regions.sort((a, b) => a.localeCompare(b));
@@ -127,6 +133,10 @@ export class ToposList {
   }
 
   // --- Gestion des changements de filtre ---
+  onNameChange(): void {
+    console.log('Nom saisi:', this.selectedName);
+    this.applyAllFilters();
+  }
   onRegionChange(event: MatChipListboxChange): void {
     this.selectedRegions = event.value;
     console.log('Régions sélectionnées:', this.selectedRegions);
@@ -165,6 +175,13 @@ export class ToposList {
   applyAllFilters(): void {
     //On remet tous les enregistrements initiaux
     let tempFilteredData = [...this.initialToposList];
+    // Appliquer le filtre par Nom
+    if (this.selectedName.length > 0) {
+      tempFilteredData = tempFilteredData.filter(topo => {
+        const normalizeString = this.utilsService.normalizeString(this.selectedName);
+        return this.utilsService.normalizeString(topo.name).includes(normalizeString);
+      });
+    }
     // Appliquer le filtre par Region
     if (this.selectedRegions.length > 0) {
       tempFilteredData = tempFilteredData.filter(topo =>

@@ -8,6 +8,15 @@
       <mat-panel-description></mat-panel-description>
     </mat-expansion-panel-header>
       <table class="filters">
+         <!-- Nom -->
+        <tr>
+          <td><mat-label>Nom </mat-label></td>
+          <td>
+            <mat-form-field class="example-form-field">
+              <input matInput type="text" [(ngModel)]="selectedName" #name (input)="onNameChange()">
+            </mat-form-field>
+          </td>
+        </tr>
         <!-- Region -->
         <tr>
           <td><mat-label>Région </mat-label></td>

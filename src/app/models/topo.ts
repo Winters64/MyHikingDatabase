@@ -3,7 +3,7 @@ export interface Topo {
     altitude: number;
     name: string;
     level: string;
-    duration: string;
+    duration: number;
     elevation: number;
     kilometers : number;
     type : string;

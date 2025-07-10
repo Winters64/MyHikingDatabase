@@ -14,10 +14,11 @@ import { MatInputModule } from '@angular/material/input';
 import { UtilsService } from '../services/utils'
 import { CommonModule } from '@angular/common';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { TimeConverterPipe } from "../pipes/time-converter-pipe";
 
 @Component({
   selector: 'app-topos-list',
-  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule, MatExpansionModule, MatInputModule, CommonModule, MatButtonToggleModule],
+  imports: [MatTableModule, MatChipsModule, MatSortModule, MatIconModule, MatPaginator, MatFormFieldModule, MatSliderModule, FormsModule, MatExpansionModule, MatInputModule, CommonModule, MatButtonToggleModule, TimeConverterPipe],
   templateUrl: './topos-list.html',
   styleUrl: './topos-list.scss'
 })
@@ -27,10 +28,13 @@ export class ToposList {
   private sheetService: SheetService = inject(SheetService);
   private utilsService: UtilsService = inject(UtilsService);
   private initialToposList: Topo[] = [];
+  isLoading: boolean = true;
+  errorMessage: string | null = null;
   dataSource = new MatTableDataSource<Topo>();
   displayedColumns: string[] = ['altitude', 'name', 'level', 'duration', 'elevation', 'kilometers', 'type', 'region', 'valley', 'panoramique', 'start', 'link'];
   
   //Champs pour la recherche
+  protected types: string[] = []
   protected regions: string[] = []
   protected valleysRegions: any[] = []
   protected valleys: string[] = []
@@ -40,6 +44,7 @@ export class ToposList {
   protected maxkilometer: number = 0;
   protected maxDuration: number = 0;
   selectedName: string = '';
+  selectedTypes: string[] = [];
   selectedRegions: string[] = [];
   selectedValleys: string[] = [];
   selectedLevels: string[] = [];
@@ -57,83 +62,19 @@ export class ToposList {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit() {
-    this.sheetService.getToposSheetData().subscribe((res: any) => {
-      this.initialToposList = [];
-      for (let index = 1; index < res.values.length; index++) {
-        if (res.values[index] && res.values[index].length >= 1) {
-          this.regions.push(res.values[index][7])
-          this.valleysRegions.push({valley: res.values[index][8], region: res.values[index][7]}) //Charger à la selection d'une ou plusieurs region
-          this.levels.push(res.values[index][2])
-          this.initialToposList.push({
-            id: index + 1,
-            altitude: res.values[index][0].replace(".",""),
-            name: res.values[index][1],
-            level: res.values[index][2],
-            duration: res.values[index][3],
-            elevation: res.values[index][4].replace(".",""),
-            kilometers: res.values[index][5],
-            type: res.values[index][6],
-            region: res.values[index][7],
-            valley: res.values[index][8],
-            panoramique: res.values[index][9],
-            start: res.values[index][10],
-            link: res.values[index][11],
-            done: res.values[index][12],
-          });
-        } else {
-          console.warn(`Skipping row ${index}: Data is incomplete or missing.`);
-        }
+    this.sheetService.getToposSheetFormatedData().subscribe({
+      next: (data) => {
+        this.initialToposList = data;
+        this.isLoading = false;
+        console.log('Données récupérées :', this.initialToposList);
+        this.dataSource.data = this.initialToposList;
+        this.getFilters();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = 'Erreur lors de la récupération des données. Vérifiez votre configuration et les logs.';
+        console.error('Erreur :', error);
       }
-      //Initial name
-      this.selectedName = '';
-      //Initial regions list
-      this.regions = Array.from(new Set(this.regions));
-      this.regions.sort((a, b) => a.localeCompare(b));
-      //Initial valleys regions list
-      const stringifiedRows = this.valleysRegions.map(row => JSON.stringify(row));
-      const uniqueStringifiedRows = new Set(stringifiedRows);
-      this.valleysRegions = Array.from(uniqueStringifiedRows).map(str => JSON.parse(str));
-      //Initial levels list
-      this.levels = Array.from(new Set(this.levels));
-      this.levels.sort((a, b) => a.localeCompare(b));
-      //Initial max altitude
-      const maxAltitudeTopo = this.initialToposList.reduce((prev, current) => {
-        return (Number(prev.altitude) > Number(current.altitude)) ? prev : current;
-      });
-      this.maxAltitude = Number(maxAltitudeTopo.altitude);
-      if (Math.abs(this.maxAltitude) % 100 !== 0){
-        this.maxAltitude += 100;
-      }
-      this.selectedEndAltitude = this.maxAltitude;
-      //Initial max elevation
-      const maxElevationTopo = this.initialToposList.reduce((prev, current) => {
-        return (Number(prev.elevation) > Number(current.elevation)) ? prev : current;
-      });
-      this.maxElevation = Number(maxElevationTopo.elevation);
-      if (Math.abs(this.maxElevation) % 100 !== 0){
-        this.maxElevation += 100;
-      }
-      this.selectedEndElevation = this.maxElevation;
-      //Initial max kilometers
-      const maxKilometerTopo = this.initialToposList.reduce((prev, current) => {
-        return (Number(prev.kilometers) > Number(current.kilometers)) ? prev : current;
-      });
-      this.maxkilometer = Number(maxKilometerTopo.kilometers);
-      if (Math.abs(this.maxkilometer) % 5 !== 0){
-        this.maxkilometer += 5;
-      }
-      this.selectedEndkilometer = this.maxkilometer;
-      //Initial max Duration
-      const maxDurationTopo = this.initialToposList.reduce((prev, current) => {
-        return this.utilsService.convertTimeToMinutes(prev.duration) > this.utilsService.convertTimeToMinutes(current.duration) ? prev : current;
-      });
-      this.maxDuration = this.utilsService.convertTimeToMinutes(maxDurationTopo.duration);
-      if (Math.abs(this.maxDuration) % 15 !== 0){
-        this.maxDuration += 15;
-      }
-      this.selectedEndDuration = this.maxDuration;
-      //Initial topo lis data source
-      this.dataSource.data = this.initialToposList;
     });
   }
 
@@ -154,6 +95,12 @@ export class ToposList {
   onNameChange(): void {
     console.log('Nom saisi:', this.selectedName);
     this.applyAllFilters();
+  }
+  onTypeChange(event: MatChipListboxChange): void {
+    this.selectedTypes = event.value;
+    console.log('Types sélectionnées:', this.selectedTypes);
+    this.applyAllFilters();
+    //this.getFilters();
   }
   onRegionChange(event: MatChipListboxChange): void {
     this.selectedRegions = event.value;
@@ -222,6 +169,12 @@ export class ToposList {
         return this.utilsService.normalizeString(topo.name).includes(normalizeString);
       });
     }
+    // Appliquer le filtre par Type
+    if (this.selectedTypes.length > 0) {
+      tempFilteredData = tempFilteredData.filter(topo =>
+        this.selectedTypes.includes(topo.type)
+      );
+    }
     // Appliquer le filtre par Region
     if (this.selectedRegions.length > 0) {
       tempFilteredData = tempFilteredData.filter(topo =>
@@ -260,8 +213,8 @@ export class ToposList {
     });
     //Appliquer le filtre sur les Durées
     tempFilteredData = tempFilteredData.filter(topo => {
-      const startOK = this.utilsService.convertTimeToMinutes(topo.duration) >= this.selectedStartDuration;
-      const endOK = this.utilsService.convertTimeToMinutes(topo.duration) <= this.selectedEndDuration;
+      const startOK = topo.duration >= this.selectedStartDuration;
+      const endOK = topo.duration <= this.selectedEndDuration;
       return startOK && endOK;
     });
     //Appliquer le filtre sur les Fait
@@ -281,6 +234,92 @@ export class ToposList {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  getFilters(){
+    //Reinitialisation des données filtres
+    this.types = []
+    this.regions = []
+    this.valleysRegions = []
+    this.valleys = []
+    this.levels = []
+    this.maxAltitude = 0;
+    this.maxElevation = 0;
+    this.maxkilometer = 0;
+    this.maxDuration = 0;
+    this.selectedName = '';
+    this.selectedRegions = [];
+    this.selectedValleys = [];
+    this.selectedLevels = [];
+    this.selectedStartAltitude = 0;
+    this.selectedEndAltitude = 0;
+    this.selectedStartElevation = 0;
+    this.selectedEndElevation = 0;
+    this.selectedStartkilometer = 0;
+    this.selectedEndkilometer = 0;
+    this.selectedStartDuration = 0;
+    this.selectedEndDuration = 0;
+    this.selectedDone = 'all';
+    //Données initiales
+    let arrayData = [...this.dataSource.data];
+    //initial Values
+    for (let index = 0; index < arrayData.length; index++) {
+      this.types.push(arrayData[index].type)
+      this.regions.push(arrayData[index].region)
+      this.valleysRegions.push({valley: arrayData[index].valley, region: arrayData[index].region}) //Charger à la selection d'une ou plusieurs region
+      this.levels.push(arrayData[index].level)   
+    }     
+    //Initial name
+    this.selectedName = '';
+    //Initial types list
+    this.types = Array.from(new Set(this.types));
+    this.types.sort((a, b) => a.localeCompare(b));
+    //Initial regions list
+    this.regions = Array.from(new Set(this.regions));
+    this.regions.sort((a, b) => a.localeCompare(b));
+    //Initial valleys regions list
+    const stringifiedRows = this.valleysRegions.map(row => JSON.stringify(row));
+    const uniqueStringifiedRows = new Set(stringifiedRows);
+    this.valleysRegions = Array.from(uniqueStringifiedRows).map(str => JSON.parse(str));
+    //Initial levels list
+    this.levels = Array.from(new Set(this.levels));
+    this.levels.sort((a, b) => a.localeCompare(b));
+    //Initial max altitude
+    const maxAltitudeTopo = arrayData.reduce((prev, current) => {
+      return (Number(prev.altitude) > Number(current.altitude)) ? prev : current;
+    });
+    this.maxAltitude = Number(maxAltitudeTopo.altitude);
+    if (Math.abs(this.maxAltitude) % 100 !== 0){
+      this.maxAltitude += 100;
+    }
+    this.selectedEndAltitude = this.maxAltitude;
+    //Initial max elevation
+    const maxElevationTopo = arrayData.reduce((prev, current) => {
+      return (Number(prev.elevation) > Number(current.elevation)) ? prev : current;
+    });
+    this.maxElevation = Number(maxElevationTopo.elevation);
+    if (Math.abs(this.maxElevation) % 100 !== 0){
+      this.maxElevation += 100;
+    }
+    this.selectedEndElevation = this.maxElevation;
+    //Initial max kilometers
+    const maxKilometerTopo = arrayData.reduce((prev, current) => {
+      return (Number(prev.kilometers) > Number(current.kilometers)) ? prev : current;
+    });
+    this.maxkilometer = Number(maxKilometerTopo.kilometers);
+    if (Math.abs(this.maxkilometer) % 5 !== 0){
+      this.maxkilometer += 5;
+    }
+    this.selectedEndkilometer = this.maxkilometer;
+    //Initial max Duration
+    const maxDurationTopo = arrayData.reduce((prev, current) => {
+      return prev.duration > current.duration ? prev : current;
+    });
+    this.maxDuration = maxDurationTopo.duration;
+    if (Math.abs(this.maxDuration) % 15 !== 0){
+      this.maxDuration += 15;
+    }
+    this.selectedEndDuration = this.maxDuration;
   }
 
 }

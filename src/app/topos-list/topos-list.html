@@ -77,14 +77,23 @@
           </mat-slider>
           <mat-label class="labelSlider"> Entre {{sliderStart3.value}} km et {{sliderEnd3.value}} km</mat-label></td>
         </tr>
+        <!-- Durée -->
+        <tr>
+          <td><mat-label>Durée </mat-label></td>
+          <td><mat-slider min="0" max="{{ maxDuration }}" step="15" showTickMarks (change)="onDurationChange(sliderStart4.value, sliderEnd4.value)">
+            <input value="0" matSliderStartThumb #sliderStart4 [(ngModel)]="selectedStartDuration">
+            <input value="{{ maxkilometer }}" matSliderEndThumb #sliderEnd4 [(ngModel)]="selectedEndDuration">
+          </mat-slider>
+          <mat-label class="labelSlider"> Entre {{sliderStart4.value}} min et {{sliderEnd4.value}} min</mat-label></td>
+        </tr>
         <!-- Fait -->
         <tr>
           <td><mat-label>Fait ? </mat-label></td>
           <td>
              <mat-button-toggle-group [(ngModel)]="selectedDone" (change)="onDoneChange($event.value)">
+               <mat-button-toggle value="all">Tous</mat-button-toggle>
               <mat-button-toggle value="y">Oui</mat-button-toggle>
               <mat-button-toggle value="n">Non</mat-button-toggle>
-              <mat-button-toggle value="all">Tous</mat-button-toggle>
             </mat-button-toggle-group>
           </td>
         </tr>

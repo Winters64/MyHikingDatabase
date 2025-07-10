@@ -38,6 +38,7 @@ export class ToposList {
   protected maxAltitude: number = 0;
   protected maxElevation: number = 0;
   protected maxkilometer: number = 0;
+  protected maxDuration: number = 0;
   selectedName: string = '';
   selectedRegions: string[] = [];
   selectedValleys: string[] = [];
@@ -48,6 +49,8 @@ export class ToposList {
   selectedEndElevation: number = 0;
   selectedStartkilometer: number = 0;
   selectedEndkilometer: number = 0;
+  selectedStartDuration: number = 0;
+  selectedEndDuration: number = 0;
   selectedDone: string = 'all';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -63,11 +66,11 @@ export class ToposList {
           this.levels.push(res.values[index][2])
           this.initialToposList.push({
             id: index + 1,
-            altitude: res.values[index][0],
+            altitude: res.values[index][0].replace(".",""),
             name: res.values[index][1],
             level: res.values[index][2],
             duration: res.values[index][3],
-            elevation: res.values[index][4],
+            elevation: res.values[index][4].replace(".",""),
             kilometers: res.values[index][5],
             type: res.values[index][6],
             region: res.values[index][7],
@@ -120,6 +123,15 @@ export class ToposList {
         this.maxkilometer += 5;
       }
       this.selectedEndkilometer = this.maxkilometer;
+      //Initial max Duration
+      const maxDurationTopo = this.initialToposList.reduce((prev, current) => {
+        return this.utilsService.convertTimeToMinutes(prev.duration) > this.utilsService.convertTimeToMinutes(current.duration) ? prev : current;
+      });
+      this.maxDuration = this.utilsService.convertTimeToMinutes(maxDurationTopo.duration);
+      if (Math.abs(this.maxDuration) % 15 !== 0){
+        this.maxDuration += 15;
+      }
+      this.selectedEndDuration = this.maxDuration;
       //Initial topo lis data source
       this.dataSource.data = this.initialToposList;
     });
@@ -187,6 +199,12 @@ export class ToposList {
     console.log('Kilomètre sélectionnés:', this.selectedStartkilometer + " - "+this.selectedEndkilometer);
     this.applyAllFilters();
   }
+  onDurationChange(startValue: string, endValue: string){
+    this.selectedStartDuration = Number(startValue);
+    this.selectedEndDuration = Number(endValue);
+    console.log('Durée sélectionnés:', this.selectedStartDuration + " - "+this.selectedEndDuration);
+    this.applyAllFilters();
+  }
   onDoneChange(value: string): void {
     this.selectedDone = value;
     console.log('Fait ?:', this.selectedDone);
@@ -238,6 +256,12 @@ export class ToposList {
     tempFilteredData = tempFilteredData.filter(topo => {
       const startOK = topo.kilometers >= this.selectedStartkilometer;
       const endOK = topo.kilometers <= this.selectedEndkilometer;
+      return startOK && endOK;
+    });
+    //Appliquer le filtre sur les Durées
+    tempFilteredData = tempFilteredData.filter(topo => {
+      const startOK = this.utilsService.convertTimeToMinutes(topo.duration) >= this.selectedStartDuration;
+      const endOK = this.utilsService.convertTimeToMinutes(topo.duration) <= this.selectedEndDuration;
       return startOK && endOK;
     });
     //Appliquer le filtre sur les Fait

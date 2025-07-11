@@ -9,17 +9,10 @@ import { UtilsService } from '../services/utils'
 export class SheetService {
   private apiKey = 'AIzaSyA-CWFxmHUOL0nTwmUyTShDyVH6jrsQLPA';
   private sheetId = '1GcSPjk_WgQ_0qaVH-aejVUmsfhu9z5Px65Y0bGEgZpQ';
-  private hikesRange = 'Sommets!A1:I86'; //Mes randonnées
   private toposRange = 'Topos!A:L'; //Topos
   private utilsService: UtilsService = inject(UtilsService);
 
   constructor(private http: HttpClient) {}
-
-  getSheetData(): Observable<any> {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${this.hikesRange}?key=${this.apiKey}`;
-    console.log(url);
-    return this.http.get(url);
-  }
 
   getToposSheetData(): Observable<any> {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${this.toposRange}?key=${this.apiKey}`;
